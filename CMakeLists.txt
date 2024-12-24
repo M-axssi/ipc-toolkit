@@ -6,6 +6,8 @@ else()
   set(IPC_TOOLKIT_TOPLEVEL_PROJECT ON)
 endif()
 
+set_property(GLOBAL PROPERTY VS_GLOBAL_VcpkgEnabled false)
+
 # Check required CMake version
 set(REQUIRED_CMAKE_VERSION "3.18.0")
 if(IPC_TOOLKIT_TOPLEVEL_PROJECT)
@@ -210,6 +212,11 @@ endif()
 
 # Use C++17
 target_compile_features(ipc_toolkit PUBLIC cxx_std_17)
+
+# Use Utf-8
+if (MSVC)
+  target_compile_options(ipc_toolkit PRIVATE /utf-8)
+endif()
 
 ################################################################################
 # CUDA

@@ -1,6 +1,7 @@
 set(SOURCES
   bindings.cpp
   collision_mesh.cpp
+  collision_obstacle_elastic_mesh.cpp
   ipc.cpp
 )
 

@@ -40,6 +40,20 @@ public:
         const Eigen::SparseMatrix<double>& displacement_map =
             Eigen::SparseMatrix<double>());
 
+    /// @brief Construct a new Collision Mesh object from a full mesh vertices.
+    /// @param include_vertex Vector of bools indicating whether each vertex should be included in the collision mesh.
+    /// @param full_rest_positions The vertices of the full mesh at rest (#V × dim).
+    /// @param edges The edges of the collision mesh indexed into the full mesh vertices (#E × 2).
+    /// @param faces The faces of the collision mesh indexed into the full mesh vertices (#F × 3).
+    /// @param displacement_map The displacement mapping from displacements on the full mesh to the collision mesh.
+    void initialization(
+        const std::vector<bool>& include_vertex,
+        const Eigen::MatrixXd& full_rest_positions,
+        const Eigen::MatrixXi& edges = Eigen::MatrixXi(),
+        const Eigen::MatrixXi& faces = Eigen::MatrixXi(),
+        const Eigen::SparseMatrix<double>& displacement_map =
+            Eigen::SparseMatrix<double>());
+
     /// @brief Helper function that automatically builds include_vertex using construct_is_on_surface.
     /// @param full_rest_positions The full vertices at rest (#FV × dim).
     /// @param edges The edge matrix of mesh (#E × 2).

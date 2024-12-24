@@ -28,10 +28,22 @@ CollisionMesh::CollisionMesh(
     const Eigen::MatrixXi& edges,
     const Eigen::MatrixXi& faces,
     const Eigen::SparseMatrix<double>& displacement_map)
-    : m_full_rest_positions(full_rest_positions)
-    , m_edges(edges)
-    , m_faces(faces)
 {
+    initialization(
+        include_vertex, full_rest_positions, edges, faces, displacement_map);
+}
+
+void CollisionMesh::initialization(
+    const std::vector<bool>& include_vertex,
+    const Eigen::MatrixXd& full_rest_positions,
+    const Eigen::MatrixXi& edges,
+    const Eigen::MatrixXi& faces,
+    const Eigen::SparseMatrix<double>& displacement_map)
+{
+    m_full_rest_positions = full_rest_positions;
+    m_edges = edges;
+    m_faces = faces;
+
     assert(include_vertex.size() == full_rest_positions.rows());
     const bool include_all_vertices = std::all_of(
         include_vertex.begin(), include_vertex.end(), [](bool b) { return b; });

@@ -8,6 +8,7 @@ set(SOURCES
   face_vertex.cpp
   vertex_vertex.cpp
   candidates.cpp
+  candidates_obstacle_elastic.cpp
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})

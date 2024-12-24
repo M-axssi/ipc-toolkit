@@ -67,6 +67,18 @@ public:
     void detect_face_face_candidates(
         std::vector<FaceFaceCandidate>& candidates) const override;
 
+    /// @brief Find the candidate edge-edge collisions for input boxes.
+    /// @param[out] candidates The candidate edge-edge collisions.
+    void detect_input_edge_edge_candidates(
+        std::vector<EdgeEdgeCandidate>& candidates,
+        const std::vector<AABB>& edge_boxes) const;
+
+    /// @brief Find the candidate vertex-vertex collisions for input boxes.
+    /// @param[out] candidates The candidate face-vertex collisions.
+    void detect_input_vertex_face_candidates(
+        std::vector<FaceVertexCandidate>& candidates,
+        const std::vector<AABB>& vertex_boxes) const;
+
 protected:
     /// @brief Initialize a BVH from a set of boxes.
     /// @param[in] boxes Set of boxes to initialize the BVH with.
