@@ -203,7 +203,7 @@ void BVH::detect_input_vertex_face_candidates(
     }
 
     // The ratio vertices:faces is 1:2, so we want to iterate over the vertices.
-    detect_candidates<FaceVertexCandidate, /*swap_order=*/false, /*triangular=*/false>(
+    detect_candidates<FaceVertexCandidate, /*swap_order=*/true, /*triangular=*/false>(
         input_vertex_boxes, face_bvh,
         std::bind(&BVH::can_all_collide, this, _1, _2), candidates);
 }

@@ -19,7 +19,7 @@ void CandidatesObstacleElastic::build(
     const double inflation_radius,
     bool updateObstacleBVH)
 {
-    const Eigen::MatrixXd& elastic_vertices =
+    const Eigen::MatrixXd elastic_vertices =
         m_mesh.extract_elastic_vertices(vertices);
 
     // Construct bvh for elastic objects
@@ -30,7 +30,7 @@ void CandidatesObstacleElastic::build(
 
     // Construct bvh for obstacle objects
     if (updateObstacleBVH) {
-        const Eigen::MatrixXd& obstacle_vertices =
+        const Eigen::MatrixXd obstacle_vertices =
             m_mesh.extract_obstacle_vertices(vertices);
 
         broad_phase_obstacle = std::make_shared<BVH>();
@@ -58,9 +58,8 @@ void CandidatesObstacleElastic::build(
 
     broad_phase_elastic = std::make_shared<BVH>();
     broad_phase_elastic->build(
-        elastic_vertices_t0, elastic_vertices_t1, 
-        m_mesh.elastic_edges(), m_mesh.elastic_faces(),
-        inflation_radius);
+        elastic_vertices_t0, elastic_vertices_t1, m_mesh.elastic_edges(),
+        m_mesh.elastic_faces(), inflation_radius);
 
     // Construct bvh for obstacle objects
     if (updateObstacleBVH) {
@@ -71,9 +70,8 @@ void CandidatesObstacleElastic::build(
 
         broad_phase_obstacle = std::make_shared<BVH>();
         broad_phase_obstacle->build(
-            obstacle_vertices_t0, obstacle_vertices_t1, 
-            m_mesh.obstacle_edges(), m_mesh.obstacle_faces(),
-            inflation_radius);
+            obstacle_vertices_t0, obstacle_vertices_t1, m_mesh.obstacle_edges(),
+            m_mesh.obstacle_faces(), inflation_radius);
     }
 
     detect_candidates();
@@ -90,8 +88,10 @@ void CandidatesObstacleElastic::detect_candidates()
         tbb::blocked_range<size_t>(size_t(0), ee_candidates.size()),
         [&](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); i++) {
-                m_mesh.elastic_edge_id_to_full_edge_id(ee_candidates[i].edge0_id);
-                m_mesh.elastic_edge_id_to_full_edge_id(ee_candidates[i].edge1_id);
+                long& e0_id = ee_candidates[i].edge0_id;
+                long& e1_id = ee_candidates[i].edge1_id;
+                e0_id = m_mesh.elastic_edge_id_to_full_edge_id(e0_id);
+                e1_id = m_mesh.elastic_edge_id_to_full_edge_id(e1_id);
             }
         });
 
@@ -99,9 +99,10 @@ void CandidatesObstacleElastic::detect_candidates()
         tbb::blocked_range<size_t>(size_t(0), fv_candidates.size()),
         [&](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); i++) {
-                m_mesh.elastic_face_id_to_full_face_id(fv_candidates[i].face_id);
-                m_mesh.elastic_vertex_id_to_full_vertex_id(
-                    fv_candidates[i].vertex_id);
+                long& f_id = fv_candidates[i].face_id;
+                long& v_id = fv_candidates[i].vertex_id;
+                f_id = m_mesh.elastic_face_id_to_full_face_id(f_id);
+                v_id = m_mesh.elastic_vertex_id_to_full_vertex_id(v_id);
             }
         });
 
@@ -129,10 +130,10 @@ void CandidatesObstacleElastic::detect_candidates()
             size_t(0), elastic_obstacle_ee_candidates.size()),
         [&](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); i++) {
-                m_mesh.elastic_edge_id_to_full_edge_id(
-                    elastic_obstacle_ee_candidates[i].edge0_id);
-                m_mesh.obstacle_edge_id_to_full_edge_id(
-                    elastic_obstacle_ee_candidates[i].edge1_id);
+                long& e0_id = elastic_obstacle_ee_candidates[i].edge0_id;
+                long& e1_id = elastic_obstacle_ee_candidates[i].edge1_id;
+                e0_id = m_mesh.elastic_edge_id_to_full_edge_id(e0_id);
+                e1_id = m_mesh.obstacle_edge_id_to_full_edge_id(e1_id);
             }
         });
 
@@ -141,10 +142,10 @@ void CandidatesObstacleElastic::detect_candidates()
             size_t(0), elastic_obstacle_vf_candidates.size()),
         [&](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); i++) {
-                m_mesh.elastic_vertex_id_to_full_vertex_id(
-                    elastic_obstacle_vf_candidates[i].vertex_id);
-                m_mesh.obstacle_face_id_to_full_face_id(
-                    elastic_obstacle_vf_candidates[i].face_id);
+                long& f_id = elastic_obstacle_vf_candidates[i].face_id;
+                long& v_id = elastic_obstacle_vf_candidates[i].vertex_id;
+                f_id = m_mesh.obstacle_face_id_to_full_face_id(f_id);
+                v_id = m_mesh.elastic_vertex_id_to_full_vertex_id(v_id);
             }
         });
 
@@ -153,10 +154,10 @@ void CandidatesObstacleElastic::detect_candidates()
             size_t(0), elastic_obstacle_fv_candidates.size()),
         [&](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); i++) {
-                m_mesh.obstacle_vertex_id_to_full_vertex_id(
-                    elastic_obstacle_fv_candidates[i].vertex_id);
-                m_mesh.elastic_face_id_to_full_face_id(
-                    elastic_obstacle_fv_candidates[i].face_id);
+                long& f_id = elastic_obstacle_fv_candidates[i].face_id;
+                long& v_id = elastic_obstacle_fv_candidates[i].vertex_id;
+                f_id = m_mesh.elastic_face_id_to_full_face_id(f_id);
+                v_id = m_mesh.obstacle_vertex_id_to_full_vertex_id(v_id);
             }
         });
 

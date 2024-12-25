@@ -42,13 +42,13 @@ public:
     const Eigen::MatrixXi& obstacle_faces() const { return m_faces_obstacle; }
 
     // -----------------------------------------------------------------------
-    const Eigen::MatrixXd& extract_obstacle_vertices(const Eigen::MatrixXd& vertices) const
+    const Eigen::MatrixXd extract_obstacle_vertices(const Eigen::MatrixXd& vertices) const
     {
         int dim = this->dim();
         return vertices.block(0, 0, m_obstacle_vnum, dim);
     }
 
-    const Eigen::MatrixXd& extract_elastic_vertices(const Eigen::MatrixXd& vertices) const 
+    const Eigen::MatrixXd extract_elastic_vertices(const Eigen::MatrixXd& vertices) const 
     {
         int dim = this->dim();
         return vertices.block(m_obstacle_vnum, 0, m_elastic_vnum, dim);
