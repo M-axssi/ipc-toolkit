@@ -20,7 +20,7 @@ void define_obstacle_elastic_candidates(py::module_& m)
             py::arg("mesh"))
         .def(
             "build",
-            py::overload_cast<const Eigen::MatrixXd&, const double, bool>(
+            py::overload_cast<const Eigen::MatrixXd&, const double, bool, bool, bool>(
                 &CandidatesObstacleElastic::build),
             R"ipc_Qu8mg5v7(
             Initialize the set of discrete collision detection candidates.
@@ -29,15 +29,19 @@ void define_obstacle_elastic_candidates(py::module_& m)
                 vertices: Surface vertex positions (rowwise).
                 inflation_radius: Amount to inflate the bounding boxes.
                 updateObstacleBVH: Force to update bvh of obstacle.
+                detect_elastic_obstacle_coll: Detect collisions between elastic and obstacle.
+                detect_elastic_elastic_coll: Detect collisions between elastic.
             )ipc_Qu8mg5v7",
             py::arg("vertices"),
             py::arg("inflation_radius") = 0,
-            py::arg("updateObstacleBVH") = false)
+            py::arg("updateObstacleBVH") = true, 
+            py::arg("detect_elastic_obstacle_coll") = true,
+            py::arg("detect_elastic_elastic_coll") = true)
         .def(
             "build",
             py::overload_cast<
                 const Eigen::MatrixXd&, const Eigen::MatrixXd&, const double,
-                bool>(&CandidatesObstacleElastic::build),
+                bool, bool, bool>(&CandidatesObstacleElastic::build),
             R"ipc_Qu8mg5v7(
             Initialize the set of continuous collision detection candidates.
 
@@ -49,8 +53,12 @@ void define_obstacle_elastic_candidates(py::module_& m)
                 vertices_t1: Surface vertex ending positions (rowwise).
                 inflation_radius: Amount to inflate the bounding boxes.
                 updateObstacleBVH: Force to update bvh of obstacle.
+                detect_elastic_obstacle_coll: Detect collisions between elastic and obstacle.
+                detect_elastic_elastic_coll: Detect collisions between elastic.
             )ipc_Qu8mg5v7",
             py::arg("vertices_t0"), py::arg("vertices_t1"),
             py::arg("inflation_radius") = 0,
-            py::arg("updateObstacleBVH") = false);
+            py::arg("updateObstacleBVH") = true,
+            py::arg("detect_elastic_obstacle_coll") = true,
+            py::arg("detect_elastic_elastic_coll") = true);
 }
