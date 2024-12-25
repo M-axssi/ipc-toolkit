@@ -16,4 +16,5 @@
 namespace py = pybind11;
 
 void define_collision_mesh(py::module_& m);
+void define_obstacle_elastic_collision_mesh(py::module_& m);
 void define_ipc(py::module_& m);

@@ -4,6 +4,7 @@
 
 // candidates
 void define_candidates(py::module_& m);
+void define_obstacle_elastic_candidates(py::module_& m);
 void define_collision_stencil(py::module_& m);
 void define_continuous_collision_candidate(py::module_& m);
 void define_edge_edge_candidate(py::module_& m);

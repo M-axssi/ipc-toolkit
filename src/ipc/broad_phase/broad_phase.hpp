@@ -116,6 +116,7 @@ protected:
     virtual bool can_face_vertex_collide(size_t fi, size_t vi) const;
     virtual bool can_edge_face_collide(size_t ei, size_t fi) const;
     virtual bool can_faces_collide(size_t fai, size_t fbi) const;
+    virtual bool can_all_collide(size_t i0, size_t i1) const;
 
     static bool default_can_vertices_collide(size_t, size_t) { return true; }
 

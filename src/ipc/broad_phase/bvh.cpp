@@ -190,7 +190,7 @@ void BVH::detect_input_edge_edge_candidates(
     detect_candidates<
         EdgeEdgeCandidate, /*swap_order=*/false, /*triangular=*/false>(
         input_edge_boxes, edge_bvh,
-        std::bind(&BVH::can_edges_collide, this, _1, _2),
+        std::bind(&BVH::can_all_collide, this, _1, _2),
         candidates);
 }
 
@@ -205,7 +205,7 @@ void BVH::detect_input_vertex_face_candidates(
     // The ratio vertices:faces is 1:2, so we want to iterate over the vertices.
     detect_candidates<FaceVertexCandidate, /*swap_order=*/false, /*triangular=*/false>(
         input_vertex_boxes, face_bvh,
-        std::bind(&BVH::can_face_vertex_collide, this, _1, _2), candidates);
+        std::bind(&BVH::can_all_collide, this, _1, _2), candidates);
 }
 
 } // namespace ipc

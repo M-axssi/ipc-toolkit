@@ -32,6 +32,7 @@ PYBIND11_MODULE(ipctk, m)
 
     // candidates
     define_candidates(m);
+    define_obstacle_elastic_candidates(m);
     define_collision_stencil(m);
     define_continuous_collision_candidate(m);
     define_edge_edge_candidate(m);
@@ -107,5 +108,6 @@ PYBIND11_MODULE(ipctk, m)
 
     // root
     define_collision_mesh(m);
+    define_obstacle_elastic_collision_mesh(m);
     define_ipc(m);
 }

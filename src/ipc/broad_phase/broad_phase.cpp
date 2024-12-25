@@ -160,4 +160,9 @@ bool BroadPhase::can_faces_collide(size_t fai, size_t fbi) const
             || can_vertices_collide(fa2i, fb2i));
 }
 
+bool BroadPhase::can_all_collide(size_t i0, size_t i1) const
+{
+    return true;
+}
+
 } // namespace ipc
