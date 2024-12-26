@@ -23,13 +23,15 @@ public:
     /// @param faces_obstacle The faces of the obstacle mesh (#F × 3).
     /// @param edges_elastic The edges of the elastic mesh (#E × 2).
     /// @param faces_elastic The faces of the elastic mesh (#F × 3).
+    /// @param bc_vids The vertex indices of the boundary of the elastic mesh.
     CollisionObstacleElasticMesh(
         const Eigen::MatrixXd& rest_positions_obstacle,
         const Eigen::MatrixXd& rest_positions_elastic,
         const Eigen::MatrixXi& edges_obstacle = Eigen::MatrixXi(),
         const Eigen::MatrixXi& faces_obstacle = Eigen::MatrixXi(),
         const Eigen::MatrixXi& edges_elastic = Eigen::MatrixXi(),
-        const Eigen::MatrixXi& faces_elastic = Eigen::MatrixXi()
+        const Eigen::MatrixXi& faces_elastic = Eigen::MatrixXi(),
+        const std::vector<int>& bc_vids_elastic = std::vector<int>()
         );
 
     /// @brief Destroy the Collision Mesh object
@@ -84,6 +86,20 @@ public:
         return face_id;
     }
 
+    bool is_vertex_bc(long vertex_id) const { 
+        return m_is_vertex_bc[vertex_id];
+    }
+
+    bool is_edge_bc(long edge_id) const { 
+        return m_is_vertex_bc[m_edges(edge_id, 0)]
+            && m_is_vertex_bc[m_edges(edge_id, 1)];
+    }
+
+    bool is_face_bc(long face_id) const {
+        return m_is_vertex_bc[m_faces(face_id, 0)]
+            && m_is_vertex_bc[m_faces(face_id, 1)]
+            && m_is_vertex_bc[m_faces(face_id, 2)];
+    }
 
 protected:  
     int m_obstacle_vnum;
@@ -97,6 +113,8 @@ protected:
     Eigen::MatrixXi m_faces_obstacle;
     Eigen::MatrixXi m_edges_elastic;
     Eigen::MatrixXi m_faces_elastic;
+
+    std::vector<bool> m_is_vertex_bc;
 };
 
 } // namespace ipc

@@ -13,7 +13,8 @@ CollisionObstacleElasticMesh::CollisionObstacleElasticMesh(
     const Eigen::MatrixXi& edges_obstacle,
     const Eigen::MatrixXi& faces_obstacle,
     const Eigen::MatrixXi& edges_elastic,
-    const Eigen::MatrixXi& faces_elastic)
+    const Eigen::MatrixXi& faces_elastic,
+    const std::vector<int>& bc_vids)
 {
     m_edges_elastic = edges_elastic;
     m_faces_elastic = faces_elastic;
@@ -43,8 +44,13 @@ CollisionObstacleElasticMesh::CollisionObstacleElasticMesh(
     faces << faces_obstacle,
         faces_elastic.array() + rest_positions_obstacle.rows();
     std::vector<bool> include_vertex(rest_positions.rows(), true);
-
+   
     this->initialization(include_vertex, rest_positions, edges, faces);
+
+    m_is_vertex_bc = std::vector<bool>(rest_positions.rows(), false);
+    for (auto x : bc_vids) {
+        m_is_vertex_bc[x + rest_positions_obstacle.rows()] = true;
+    }
 }
 
 } // namespace ipc
