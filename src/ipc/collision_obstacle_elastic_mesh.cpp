@@ -51,6 +51,9 @@ CollisionObstacleElasticMesh::CollisionObstacleElasticMesh(
     for (auto x : bc_vids) {
         m_is_vertex_bc[x + rest_positions_obstacle.rows()] = true;
     }
+    for (int i = 0; i < m_obstacle_vnum; ++i) {
+        m_is_vertex_bc[i] = true;
+    }
 }
 
 } // namespace ipc
