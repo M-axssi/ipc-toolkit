@@ -25,6 +25,11 @@ set(IPC_TOOLKIT_TESTS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 # Add an empty library and fill in the list of sources in `src/tests/CMakeLists.txt`.
 add_executable(ipc_toolkit_tests)
 
+# Use Utf-8
+if (MSVC)
+  target_compile_options(ipc_toolkit_tests PRIVATE /utf-8)
+endif()
+
 # Fill in configuration options
 include(ipc_toolkit_tests_data)
 configure_file(

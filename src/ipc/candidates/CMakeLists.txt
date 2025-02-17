@@ -1,6 +1,8 @@
 set(SOURCES
   candidates.cpp
   candidates.hpp
+  candidates_obstacle_elastic.cpp
+  candidates_obstacle_elastic.hpp
   collision_stencil.hpp
   continuous_collision_candidate.cpp
   continuous_collision_candidate.hpp

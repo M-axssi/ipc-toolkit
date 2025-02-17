@@ -106,12 +106,17 @@ public:
     std::function<bool(size_t, size_t)> can_vertices_collide =
         default_can_vertices_collide;
 
+    const std::vector<AABB>& get_vertex_boxes() { return vertex_boxes; }
+    const std::vector<AABB>& get_edge_boxes() { return edge_boxes; }
+    const std::vector<AABB>& get_face_boxes() { return face_boxes; }
+
 protected:
     virtual bool can_edge_vertex_collide(size_t ei, size_t vi) const;
     virtual bool can_edges_collide(size_t eai, size_t ebi) const;
     virtual bool can_face_vertex_collide(size_t fi, size_t vi) const;
     virtual bool can_edge_face_collide(size_t ei, size_t fi) const;
     virtual bool can_faces_collide(size_t fai, size_t fbi) const;
+    virtual bool can_all_collide(size_t i0, size_t i1) const;
 
     static bool default_can_vertices_collide(size_t, size_t) { return true; }
 

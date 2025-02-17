@@ -1,3 +1,5 @@
+#include <optional>
+
 #include <tests/config.hpp>
 #include <tests/broad_phase/brute_force_comparison.hpp>
 #include <tests/utils.hpp>
