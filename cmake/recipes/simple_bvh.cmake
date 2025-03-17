@@ -8,4 +8,4 @@ endif()
 message(STATUS "Third-party: creating target 'simple_bvh::simple_bvh'")
 
 include(CPM)
-CPMAddPackage("gh:geometryprocessing/SimpleBVH#e1a931337a9e07e8bd2d2e8bbdfd7e54bc850df5")
+CPMAddPackage("gh:M-axssi/SimpleBVH#db244ebdd4ea348849a9f2b6ef7e908ddbf75ff4")

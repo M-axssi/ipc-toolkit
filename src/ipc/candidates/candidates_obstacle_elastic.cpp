@@ -28,7 +28,8 @@ void CandidatesObstacleElastic::build(
         m_mesh.extract_elastic_vertices(vertices);
 
     // Construct bvh for elastic objects
-    broad_phase_elastic = std::make_shared<BVH>();
+    if (!broad_phase_elastic)
+        broad_phase_elastic = std::make_shared<BVH>();
     broad_phase_elastic->build(
         elastic_vertices, m_mesh.elastic_edges(), m_mesh.elastic_faces(),
         inflation_radius);
@@ -38,7 +39,8 @@ void CandidatesObstacleElastic::build(
         const Eigen::MatrixXd obstacle_vertices =
             m_mesh.extract_obstacle_vertices(vertices);
 
-        broad_phase_obstacle = std::make_shared<BVH>();
+        if (!broad_phase_obstacle)
+            broad_phase_obstacle = std::make_shared<BVH>();
         broad_phase_obstacle->build(
             obstacle_vertices, m_mesh.obstacle_edges(), m_mesh.obstacle_faces(),
             inflation_radius);
@@ -64,7 +66,8 @@ void CandidatesObstacleElastic::build(
     const Eigen::MatrixXd& elastic_vertices_t1 =
         m_mesh.extract_elastic_vertices(vertices_t1);
 
-    broad_phase_elastic = std::make_shared<BVH>();
+    if (!broad_phase_elastic)
+        broad_phase_elastic = std::make_shared<BVH>();
     broad_phase_elastic->build(
         elastic_vertices_t0, elastic_vertices_t1, m_mesh.elastic_edges(),
         m_mesh.elastic_faces(), inflation_radius);
@@ -76,7 +79,8 @@ void CandidatesObstacleElastic::build(
         const Eigen::MatrixXd& obstacle_vertices_t1 =
             m_mesh.extract_obstacle_vertices(vertices_t1);
 
-        broad_phase_obstacle = std::make_shared<BVH>();
+        if (!broad_phase_obstacle)
+            broad_phase_obstacle = std::make_shared<BVH>();
         broad_phase_obstacle->build(
             obstacle_vertices_t0, obstacle_vertices_t1, m_mesh.obstacle_edges(),
             m_mesh.obstacle_faces(), inflation_radius);
