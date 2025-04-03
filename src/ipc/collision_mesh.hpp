@@ -298,11 +298,11 @@ public:
     /// primitives can collide with all other primitives.
     std::function<bool(size_t, size_t)> can_collide = default_can_collide;
 
-    const VecXd& get_inflation_radius() const{
+    const Eigen::VectorXd& get_inflation_radius() const{
         return m_inflation_radius;
     }
 
-    void set_dhat(Scalar dhat){
+    void set_dhat(double dhat){
         m_dhat_vertices.resize(m_full_rest_positions.rows());
         m_dhat_edges.resize(m_edges.rows());
         m_dhat_faces.resize(m_faces.rows());
@@ -315,7 +315,7 @@ public:
         m_inflation_radius.setConstant(dhat/2);
     }
 
-    void set_dhat(const VecXd& dhat){
+    void set_dhat(const Eigen::VectorXd& dhat){
         m_dhat_vertices = dhat;
 
         m_dhat_edges.resize(m_edges.rows());
