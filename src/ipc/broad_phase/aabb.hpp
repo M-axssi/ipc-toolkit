@@ -81,7 +81,7 @@ void build_vertex_boxes(
 void build_vertex_boxes(
     const Eigen::MatrixXd& vertices,
     std::vector<AABB>& vertex_boxes,
-    const Eigen::VectorXd& inflation_radius = 0);
+    const Eigen::VectorXd& inflation_radius);
 
 /// @brief Build one AABB per vertex position moving linearly from t=0 to t=1.
 /// @param vertices_t0 Vertex positions at t=0 (rowwise).
@@ -103,7 +103,7 @@ void build_vertex_boxes(
     const Eigen::MatrixXd& vertices_t0,
     const Eigen::MatrixXd& vertices_t1,
     std::vector<AABB>& vertex_boxes,
-    const Eigen::VectorXd& inflation_radius = 0);
+    const Eigen::VectorXd& inflation_radius);
 
 /// @brief Build one AABB per edge.
 /// @param vertex_boxes Vertex AABBs.
