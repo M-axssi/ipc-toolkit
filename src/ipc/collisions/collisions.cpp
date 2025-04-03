@@ -151,7 +151,7 @@ void Collisions::build(
     Candidates candidates;
     candidates.build(mesh, vertices, inflation_radius, broad_phase_method);
 
-    this->build(candidates, mesh, vertices, dhat, dmin);
+    this->build(candidates, mesh, vertices, dmin);
 }
 
 void Collisions::build(
@@ -207,8 +207,8 @@ void Collisions::build(
                 r.end());
         });
 
-    if (use_convergent_formulation){
-        assert(use_convergent_formulation,
+    if (use_convergent_formulation()){
+        throw std::runtime_error(
             "Convergent formulation is not supported in this build.");
     }
     

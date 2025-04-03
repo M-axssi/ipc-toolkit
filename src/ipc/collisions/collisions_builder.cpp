@@ -127,7 +127,7 @@ void CollisionsBuilder::add_edge_edge_collisions(
     const CollisionMesh& mesh,
     const Eigen::MatrixXd& vertices,
     const std::vector<EdgeEdgeCandidate>& candidates,
-    const std::function<bool(double)>& is_active,
+    const std::function<bool(double, double)>& is_active,
     const size_t start_i,
     const size_t end_i)
 {
@@ -237,7 +237,7 @@ void CollisionsBuilder::add_face_vertex_collisions(
     const CollisionMesh& mesh,
     const Eigen::MatrixXd& vertices,
     const std::vector<FaceVertexCandidate>& candidates,
-    const std::function<bool(double)>& is_active,
+    const std::function<bool(double, double)>& is_active,
     const size_t start_i,
     const size_t end_i)
 {

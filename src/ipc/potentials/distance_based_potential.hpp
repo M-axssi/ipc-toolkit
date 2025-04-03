@@ -78,21 +78,21 @@ protected:
     /// @param dmin The minimum distance (unsquared) between the two objects.
     /// @return The unmollified distance-based potential.
     virtual double distance_based_potential(
-        const double distance_sqr, const double dmin = 0) const = 0;
+        const double distance_sqr, const double dmin = 0, const double dhat=1e-6) const = 0;
 
     /// @brief Compute the gradient of the unmollified distance-based potential for a collision.
     /// @param distance_sqr The distance (squared) between the two objects.
     /// @param dmin The minimum distance (unsquared) between the two objects.
     /// @return The gradient of the unmollified distance-based potential.
     virtual double distance_based_potential_gradient(
-        const double distance_sqr, const double dmin = 0) const = 0;
+        const double distance_sqr, const double dmin = 0, const double dhat=1e-6) const = 0;
 
     /// @brief Compute the hessian of the unmollified distance-based potential for a collision.
     /// @param distance_sqr The distance (squared) between the two objects.
     /// @param dmin The minimum distance (unsquared) between the two objects.
     /// @return The hessian of the unmollified distance-based potential.
     virtual double distance_based_potential_hessian(
-        const double distance_sqr, const double dmin = 0) const = 0;
+        const double distance_sqr, const double dmin = 0, const double dhat=1e-6) const = 0;
 };
 
 } // namespace ipc

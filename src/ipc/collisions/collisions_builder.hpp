@@ -35,7 +35,7 @@ public:
         const CollisionMesh& mesh,
         const Eigen::MatrixXd& vertices,
         const std::vector<EdgeEdgeCandidate>& candidates,
-        const std::function<bool(double)>& is_active,
+        const std::function<bool(double, double)>& is_active,
         const size_t start_i,
         const size_t end_i);
 
@@ -43,7 +43,7 @@ public:
         const CollisionMesh& mesh,
         const Eigen::MatrixXd& vertices,
         const std::vector<FaceVertexCandidate>& candidates,
-        const std::function<bool(double)>& is_active,
+        const std::function<bool(double, double)>& is_active,
         const size_t start_i,
         const size_t end_i);
 

@@ -47,7 +47,6 @@ public:
         const Candidates& candidates,
         const CollisionMesh& mesh,
         const Eigen::MatrixXd& vertices,
-        const double dhat,
         const double dmin = 0);
 
     // ------------------------------------------------------------------------
