@@ -298,6 +298,55 @@ public:
     /// primitives can collide with all other primitives.
     std::function<bool(size_t, size_t)> can_collide = default_can_collide;
 
+    const VecXd& get_inflation_radius() const{
+        return m_inflation_radius;
+    }
+
+    void set_dhat(Scalar dhat){
+        m_dhat_vertices.resize(m_full_rest_positions.rows());
+        m_dhat_edges.resize(m_edges.rows());
+        m_dhat_faces.resize(m_faces.rows());
+
+        m_dhat_vertices.setConstant(dhat);
+        m_dhat_edges.setConstant(dhat);
+        m_dhat_faces.setConstant(dhat);
+
+        m_inflation_radius.resize(m_full_rest_positions.rows());
+        m_inflation_radius.setConstant(dhat/2);
+    }
+
+    void set_dhat(const VecXd& dhat){
+        m_dhat_vertices = dhat;
+
+        m_dhat_edges.resize(m_edges.rows());
+        m_dhat_faces.resize(m_faces.rows());
+
+        for (int i=0;i<m_edges.rows();++i){
+            m_dhat_edges(i) = std::min(dhat(m_edges(i, 0)), dhat(m_edges(i, 1)));
+        }
+
+        for (int i=0;i<m_faces.rows();++i){
+            m_dhat_faces(i) = std::min(dhat(m_faces(i, 0)), std::min(dhat(m_faces(i, 1)), dhat(m_faces(i, 2))));
+        }
+        
+        m_inflation_radius = dhat;
+    }
+
+    double get_vertex_dhat(int vertex_id) const
+    {
+        return m_dhat_vertices[vertex_id];
+    }
+
+    double get_edge_dhat(int edge_id) const
+    {
+        return m_dhat_edges[edge_id];
+    }
+
+    double get_face_dhat(int face_id) const
+    {
+        return m_dhat_faces[face_id];
+    }
+
 protected:
     // -----------------------------------------------------------------------
     // Helper initialization functions
@@ -376,6 +425,11 @@ protected:
     std::vector<Eigen::SparseVector<double>> m_vertex_area_jacobian;
     /// @brief The rows of the Jacobian of the edge areas vector.
     std::vector<Eigen::SparseVector<double>> m_edge_area_jacobian;
+
+    Eigen::VectorXd m_inflation_radius;
+    Eigen::VectorXd m_dhat_vertices;
+    Eigen::VectorXd m_dhat_edges;
+    Eigen::VectorXd m_dhat_faces;
 
 private:
     /// @brief By default all primitives can collide with all other primitives.

@@ -18,24 +18,24 @@ BarrierPotential::BarrierPotential(
 }
 
 double BarrierPotential::distance_based_potential(
-    const double distance_sqr, const double dmin) const
+    const double distance_sqr, const double dmin, const double give_dhat) const
 {
     return barrier()(
-        distance_sqr - dmin * dmin, 2 * dmin * dhat() + dhat() * dhat());
+        distance_sqr - dmin * dmin, 2 * dmin * give_dhat + give_dhat * give_dhat);
 }
 
 double BarrierPotential::distance_based_potential_gradient(
-    const double distance_sqr, const double dmin) const
+    const double distance_sqr, const double dmin, const double give_dhat) const
 {
     return barrier().first_derivative(
-        distance_sqr - dmin * dmin, 2 * dmin * dhat() + dhat() * dhat());
+        distance_sqr - dmin * dmin, 2 * dmin * give_dhat + give_dhat * give_dhat);
 }
 
 double BarrierPotential::distance_based_potential_hessian(
-    const double distance_sqr, const double dmin) const
+    const double distance_sqr, const double dmin, const double give_dhat) const
 {
     return barrier().second_derivative(
-        distance_sqr - dmin * dmin, 2 * dmin * dhat() + dhat() * dhat());
+        distance_sqr - dmin * dmin, 2 * dmin * give_dhat + give_dhat * give_dhat);
 }
 
 } // namespace ipc

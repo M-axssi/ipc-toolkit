@@ -50,6 +50,17 @@ public:
         const Eigen::MatrixXi& faces,
         const double inflation_radius = 0);
 
+    /// @brief Build the broad phase for static collision detection.
+    /// @param vertices Vertex positions
+    /// @param edges Collision mesh edges
+    /// @param faces Collision mesh faces
+    /// @param inflation_radius Radius of inflation around all elements.
+    virtual void build(
+        const Eigen::MatrixXd& vertices,
+        const Eigen::MatrixXi& edges,
+        const Eigen::MatrixXi& faces,
+        const Eigen::VectorXd& inflation_radius);
+ 
     /// @brief Build the broad phase for continuous collision detection.
     /// @param vertices_t0 Starting vertices of the vertices.
     /// @param vertices_t1 Ending vertices of the vertices.
@@ -62,6 +73,19 @@ public:
         const Eigen::MatrixXi& edges,
         const Eigen::MatrixXi& faces,
         const double inflation_radius = 0);
+
+    /// @brief Build the broad phase for continuous collision detection.
+    /// @param vertices_t0 Starting vertices of the vertices.
+    /// @param vertices_t1 Ending vertices of the vertices.
+    /// @param edges Collision mesh edges
+    /// @param faces Collision mesh faces
+    /// @param inflation_radius Radius of inflation around all elements.
+    virtual void build(
+        const Eigen::MatrixXd& vertices_t0,
+        const Eigen::MatrixXd& vertices_t1,
+        const Eigen::MatrixXi& edges,
+        const Eigen::MatrixXi& faces,
+        const Eigen::VectorXd& inflation_radius);
 
     /// @brief Clear any built data.
     virtual void clear();

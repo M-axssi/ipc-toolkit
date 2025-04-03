@@ -51,6 +51,37 @@ void CandidatesObstacleElastic::build(
 }
 
 void CandidatesObstacleElastic::build(
+    const Eigen::MatrixXd& vertices,
+    const Eigen::VectorXd& inflation_radius,
+    bool updateObstacleBVH,
+    bool detect_elastic_obstacle_coll,
+    bool detect_elastic_elastic_coll){
+    const Eigen::MatrixXd elastic_vertices =
+        m_mesh.extract_elastic_vertices(vertices);
+
+    // Construct bvh for elastic objects
+    if (!broad_phase_elastic)
+        broad_phase_elastic = std::make_shared<BVH>();
+    broad_phase_elastic->build(
+        elastic_vertices, m_mesh.elastic_edges(), m_mesh.elastic_faces(),
+        inflation_radius.segmented(0, elastic_vertices.rows()));
+
+    // Construct bvh for obstacle objects
+    if (updateObstacleBVH) {
+        const Eigen::MatrixXd obstacle_vertices =
+            m_mesh.extract_obstacle_vertices(vertices);
+
+        if (!broad_phase_obstacle)
+            broad_phase_obstacle = std::make_shared<BVH>();
+        broad_phase_obstacle->build(
+            obstacle_vertices, m_mesh.obstacle_edges(), m_mesh.obstacle_faces(),
+            inflation_radius.segmented(elastic_vertices.rows(), obstacle_vertices.rows()));
+    }
+
+    detect_candidates(detect_elastic_obstacle_coll, detect_elastic_elastic_coll);
+}
+
+void CandidatesObstacleElastic::build(
     const Eigen::MatrixXd& vertices_t0,
     const Eigen::MatrixXd& vertices_t1,
     const double inflation_radius,
@@ -84,6 +115,48 @@ void CandidatesObstacleElastic::build(
         broad_phase_obstacle->build(
             obstacle_vertices_t0, obstacle_vertices_t1, m_mesh.obstacle_edges(),
             m_mesh.obstacle_faces(), inflation_radius);
+    }
+
+    detect_candidates(
+        detect_elastic_obstacle_coll, detect_elastic_elastic_coll);
+}
+
+void CandidatesObstacleElastic::build(
+    const Eigen::MatrixXd& vertices_t0,
+    const Eigen::MatrixXd& vertices_t1,
+    const Eigen::VectorXd& inflation_radius,
+    bool updateObstacleBVH,
+    bool detect_elastic_obstacle_coll,
+    bool detect_elastic_elastic_coll)
+{
+    clear();
+
+    // Construct bvh for elastic objects
+    const Eigen::MatrixXd& elastic_vertices_t0 =
+        m_mesh.extract_elastic_vertices(vertices_t0);
+    const Eigen::MatrixXd& elastic_vertices_t1 =
+        m_mesh.extract_elastic_vertices(vertices_t1);
+
+    if (!broad_phase_elastic)
+        broad_phase_elastic = std::make_shared<BVH>();
+    broad_phase_elastic->build(
+        elastic_vertices_t0, elastic_vertices_t1, 
+        m_mesh.elastic_edges(), m_mesh.elastic_faces(), 
+        inflation_radius.segmented(0, elastic_vertices_t0.rows()));
+
+    // Construct bvh for obstacle objects
+    if (updateObstacleBVH) {
+        const Eigen::MatrixXd& obstacle_vertices_t0 =
+            m_mesh.extract_obstacle_vertices(vertices_t0);
+        const Eigen::MatrixXd& obstacle_vertices_t1 =
+            m_mesh.extract_obstacle_vertices(vertices_t1);
+
+        if (!broad_phase_obstacle)
+            broad_phase_obstacle = std::make_shared<BVH>();
+        broad_phase_obstacle->build(
+            obstacle_vertices_t0, obstacle_vertices_t1, 
+            m_mesh.obstacle_edges(), m_mesh.obstacle_faces(), 
+            inflation_radius.segmented(elastic_vertices_t0.rows(), obstacle_vertices_t0.rows()));
     }
 
     detect_candidates(

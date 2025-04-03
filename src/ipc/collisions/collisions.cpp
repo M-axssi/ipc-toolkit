@@ -158,7 +158,6 @@ void Collisions::build(
     const Candidates& candidates,
     const CollisionMesh& mesh,
     const Eigen::MatrixXd& vertices,
-    const double dhat,
     const double dmin)
 {
     assert(vertices.rows() == mesh.num_vertices());
@@ -167,29 +166,30 @@ void Collisions::build(
 
     // Cull the candidates by measuring the distance and dropping those that are
     // greater than dhat.
-    const double offset_sqr = (dmin + dhat) * (dmin + dhat);
-    auto is_active = [&](double distance_sqr) {
+    // const double offset_sqr = (dmin + dhat) * (dmin + dhat);
+    auto is_active = [&](double distance_sqr, double individual_dhat) {
+        const double offset_sqr = (dmin + individual_dhat) * (dmin + individual_dhat);
         return distance_sqr < offset_sqr;
     };
 
     tbb::enumerable_thread_specific<CollisionsBuilder> storage(
         use_convergent_formulation(), are_shape_derivatives_enabled());
 
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(size_t(0), candidates.vv_candidates.size()),
-        [&](const tbb::blocked_range<size_t>& r) {
-            storage.local().add_vertex_vertex_collisions(
-                mesh, vertices, candidates.vv_candidates, is_active, r.begin(),
-                r.end());
-        });
+    // tbb::parallel_for(
+    //     tbb::blocked_range<size_t>(size_t(0), candidates.vv_candidates.size()),
+    //     [&](const tbb::blocked_range<size_t>& r) {
+    //         storage.local().add_vertex_vertex_collisions(
+    //             mesh, vertices, candidates.vv_candidates, is_active, r.begin(),
+    //             r.end());
+    //     });
 
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(size_t(0), candidates.ev_candidates.size()),
-        [&](const tbb::blocked_range<size_t>& r) {
-            storage.local().add_edge_vertex_collisions(
-                mesh, vertices, candidates.ev_candidates, is_active, r.begin(),
-                r.end());
-        });
+    // tbb::parallel_for(
+    //     tbb::blocked_range<size_t>(size_t(0), candidates.ev_candidates.size()),
+    //     [&](const tbb::blocked_range<size_t>& r) {
+    //         storage.local().add_edge_vertex_collisions(
+    //             mesh, vertices, candidates.ev_candidates, is_active, r.begin(),
+    //             r.end());
+    //     });
 
     tbb::parallel_for(
         tbb::blocked_range<size_t>(size_t(0), candidates.ee_candidates.size()),
@@ -207,64 +207,69 @@ void Collisions::build(
                 r.end());
         });
 
-    if (use_convergent_formulation()) {
-        if (candidates.ev_candidates.size() > 0) {
-            // Convert edge-vertex to vertex-vertex
-            const std::vector<VertexVertexCandidate> vv_candidates =
-                edge_vertex_to_vertex_vertex_candidates(
-                    mesh, vertices, candidates.ev_candidates, is_active);
-
-            tbb::parallel_for(
-                tbb::blocked_range<size_t>(size_t(0), vv_candidates.size()),
-                [&](const tbb::blocked_range<size_t>& r) {
-                    storage.local()
-                        .add_edge_vertex_negative_vertex_vertex_collisions(
-                            mesh, vertices, vv_candidates, r.begin(), r.end());
-                });
-        }
-
-        if (candidates.ee_candidates.size() > 0) {
-            // Convert edge-edge to edge-vertex
-            const auto ev_candidates = edge_edge_to_edge_vertex_candidates(
-                mesh, vertices, candidates.ee_candidates, is_active);
-
-            tbb::parallel_for(
-                tbb::blocked_range<size_t>(size_t(0), ev_candidates.size()),
-                [&](const tbb::blocked_range<size_t>& r) {
-                    storage.local()
-                        .add_edge_edge_negative_edge_vertex_collisions(
-                            mesh, vertices, ev_candidates, r.begin(), r.end());
-                });
-        }
-
-        if (candidates.fv_candidates.size() > 0) {
-            // Convert face-vertex to edge-vertex
-            const std::vector<EdgeVertexCandidate> ev_candidates =
-                face_vertex_to_edge_vertex_candidates(
-                    mesh, vertices, candidates.fv_candidates, is_active);
-
-            tbb::parallel_for(
-                tbb::blocked_range<size_t>(size_t(0), ev_candidates.size()),
-                [&](const tbb::blocked_range<size_t>& r) {
-                    storage.local()
-                        .add_face_vertex_negative_edge_vertex_collisions(
-                            mesh, vertices, ev_candidates, r.begin(), r.end());
-                });
-
-            // Convert face-vertex to vertex-vertex
-            const std::vector<VertexVertexCandidate> vv_candidates =
-                face_vertex_to_vertex_vertex_candidates(
-                    mesh, vertices, candidates.fv_candidates, is_active);
-
-            tbb::parallel_for(
-                tbb::blocked_range<size_t>(size_t(0), vv_candidates.size()),
-                [&](const tbb::blocked_range<size_t>& r) {
-                    storage.local()
-                        .add_face_vertex_positive_vertex_vertex_collisions(
-                            mesh, vertices, vv_candidates, r.begin(), r.end());
-                });
-        }
+    if (use_convergent_formulation){
+        assert(use_convergent_formulation,
+            "Convergent formulation is not supported in this build.");
     }
+    
+    // if (use_convergent_formulation()) {
+    //     if (candidates.ev_candidates.size() > 0) {
+    //         // Convert edge-vertex to vertex-vertex
+    //         const std::vector<VertexVertexCandidate> vv_candidates =
+    //             edge_vertex_to_vertex_vertex_candidates(
+    //                 mesh, vertices, candidates.ev_candidates, is_active);
+
+    //         tbb::parallel_for(
+    //             tbb::blocked_range<size_t>(size_t(0), vv_candidates.size()),
+    //             [&](const tbb::blocked_range<size_t>& r) {
+    //                 storage.local()
+    //                     .add_edge_vertex_negative_vertex_vertex_collisions(
+    //                         mesh, vertices, vv_candidates, r.begin(), r.end());
+    //             });
+    //     }
+
+    //     if (candidates.ee_candidates.size() > 0) {
+    //         // Convert edge-edge to edge-vertex
+    //         const auto ev_candidates = edge_edge_to_edge_vertex_candidates(
+    //             mesh, vertices, candidates.ee_candidates, is_active);
+
+    //         tbb::parallel_for(
+    //             tbb::blocked_range<size_t>(size_t(0), ev_candidates.size()),
+    //             [&](const tbb::blocked_range<size_t>& r) {
+    //                 storage.local()
+    //                     .add_edge_edge_negative_edge_vertex_collisions(
+    //                         mesh, vertices, ev_candidates, r.begin(), r.end());
+    //             });
+    //     }
+
+    //     if (candidates.fv_candidates.size() > 0) {
+    //         // Convert face-vertex to edge-vertex
+    //         const std::vector<EdgeVertexCandidate> ev_candidates =
+    //             face_vertex_to_edge_vertex_candidates(
+    //                 mesh, vertices, candidates.fv_candidates, is_active);
+
+    //         tbb::parallel_for(
+    //             tbb::blocked_range<size_t>(size_t(0), ev_candidates.size()),
+    //             [&](const tbb::blocked_range<size_t>& r) {
+    //                 storage.local()
+    //                     .add_face_vertex_negative_edge_vertex_collisions(
+    //                         mesh, vertices, ev_candidates, r.begin(), r.end());
+    //             });
+
+    //         // Convert face-vertex to vertex-vertex
+    //         const std::vector<VertexVertexCandidate> vv_candidates =
+    //             face_vertex_to_vertex_vertex_candidates(
+    //                 mesh, vertices, candidates.fv_candidates, is_active);
+
+    //         tbb::parallel_for(
+    //             tbb::blocked_range<size_t>(size_t(0), vv_candidates.size()),
+    //             [&](const tbb::blocked_range<size_t>& r) {
+    //                 storage.local()
+    //                     .add_face_vertex_positive_vertex_vertex_collisions(
+    //                         mesh, vertices, vv_candidates, r.begin(), r.end());
+    //             });
+    //     }
+    // }
 
     // -------------------------------------------------------------------------
 
@@ -277,23 +282,23 @@ void Collisions::build(
         collision.dmin = dmin;
     }
 
-    if (use_convergent_formulation()) {
-        // NOTE: When using the convergent formulation we want the barrier to
-        // have units of Pa⋅m, so κ gets units of Pa and the barrier function
-        // should have units of m. See notebooks/physical_barrier.ipynb for more
-        // details.
-        const double barrier_to_physical_barrier_divisor =
-            dhat * std::pow(dhat + 2 * dmin, 2);
+    // if (use_convergent_formulation()) {
+    //     // NOTE: When using the convergent formulation we want the barrier to
+    //     // have units of Pa⋅m, so κ gets units of Pa and the barrier function
+    //     // should have units of m. See notebooks/physical_barrier.ipynb for more
+    //     // details.
+    //     const double barrier_to_physical_barrier_divisor =
+    //         dhat * std::pow(dhat + 2 * dmin, 2);
 
-        for (size_t ci = 0; ci < size(); ci++) {
-            Collision& collision = (*this)[ci];
-            collision.weight /= barrier_to_physical_barrier_divisor;
-            if (are_shape_derivatives_enabled()) {
-                collision.weight_gradient /=
-                    barrier_to_physical_barrier_divisor;
-            }
-        }
-    }
+    //     for (size_t ci = 0; ci < size(); ci++) {
+    //         Collision& collision = (*this)[ci];
+    //         collision.weight /= barrier_to_physical_barrier_divisor;
+    //         if (are_shape_derivatives_enabled()) {
+    //             collision.weight_gradient /=
+    //                 barrier_to_physical_barrier_divisor;
+    //         }
+    //     }
+    // }
 }
 
 void Collisions::set_use_convergent_formulation(

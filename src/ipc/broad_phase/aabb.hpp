@@ -74,6 +74,15 @@ void build_vertex_boxes(
     std::vector<AABB>& vertex_boxes,
     const double inflation_radius = 0);
 
+/// @brief Build one AABB per vertex position (row of V).
+/// @param[in] vertices Vertex positions (rowwise).
+/// @param[out] vertex_boxes Vertex AABBs.
+/// @param[in] inflation_radius Radius of a sphere around the points which the AABBs enclose.
+void build_vertex_boxes(
+    const Eigen::MatrixXd& vertices,
+    std::vector<AABB>& vertex_boxes,
+    const Eigen::VectorXd& inflation_radius = 0);
+
 /// @brief Build one AABB per vertex position moving linearly from t=0 to t=1.
 /// @param vertices_t0 Vertex positions at t=0 (rowwise).
 /// @param vertices_t1 Vertex positions at t=1 (rowwise).
@@ -84,6 +93,17 @@ void build_vertex_boxes(
     const Eigen::MatrixXd& vertices_t1,
     std::vector<AABB>& vertex_boxes,
     const double inflation_radius = 0);
+
+/// @brief Build one AABB per vertex position moving linearly from t=0 to t=1.
+/// @param vertices_t0 Vertex positions at t=0 (rowwise).
+/// @param vertices_t1 Vertex positions at t=1 (rowwise).
+/// @param vertex_boxes Vertex AABBs.
+/// @param inflation_radius Radius of a capsule around the temporal edges which the AABBs enclose.
+void build_vertex_boxes(
+    const Eigen::MatrixXd& vertices_t0,
+    const Eigen::MatrixXd& vertices_t1,
+    std::vector<AABB>& vertex_boxes,
+    const Eigen::VectorXd& inflation_radius = 0);
 
 /// @brief Build one AABB per edge.
 /// @param vertex_boxes Vertex AABBs.

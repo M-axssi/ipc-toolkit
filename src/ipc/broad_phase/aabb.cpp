@@ -77,6 +77,24 @@ void build_vertex_boxes(
 }
 
 void build_vertex_boxes(
+    const Eigen::MatrixXd& vertices,
+    std::vector<AABB>& vertex_boxes,
+    const Eigen::VectorXd& inflation_radius)
+{
+    vertex_boxes.resize(vertices.rows());
+
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, vertices.rows()),
+        [&](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); i++) {
+                vertex_boxes[i] =
+                    AABB::from_point(vertices.row(i), inflation_radius[i]);
+                vertex_boxes[i].vertex_ids = { { long(i), -1, -1 } };
+            }
+        });
+}
+
+void build_vertex_boxes(
     const Eigen::MatrixXd& vertices_t0,
     const Eigen::MatrixXd& vertices_t1,
     std::vector<AABB>& vertex_boxes,
@@ -90,6 +108,25 @@ void build_vertex_boxes(
             for (size_t i = r.begin(); i < r.end(); i++) {
                 vertex_boxes[i] = AABB::from_point(
                     vertices_t0.row(i), vertices_t1.row(i), inflation_radius);
+                vertex_boxes[i].vertex_ids = { { long(i), -1, -1 } };
+            }
+        });
+}
+
+void build_vertex_boxes(
+    const Eigen::MatrixXd& vertices_t0,
+    const Eigen::MatrixXd& vertices_t1,
+    std::vector<AABB>& vertex_boxes,
+    const Eigen::VectorXd& inflation_radius)
+{
+    vertex_boxes.resize(vertices_t0.rows());
+
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, vertices_t0.rows()),
+        [&](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); i++) {
+                vertex_boxes[i] = AABB::from_point(
+                    vertices_t0.row(i), vertices_t1.row(i), inflation_radius[i]);
                 vertex_boxes[i].vertex_ids = { { long(i), -1, -1 } };
             }
         });

@@ -23,11 +23,36 @@ void BVH::build(
 }
 
 void BVH::build(
+    const Eigen::MatrixXd& vertices,
+    const Eigen::MatrixXi& edges,
+    const Eigen::MatrixXi& faces,
+    const Eigen::VectorXd& inflation_radius)
+{
+    BroadPhase::build(vertices, edges, faces, inflation_radius);
+    init_bvh(vertex_boxes, vertex_bvh);
+    init_bvh(edge_boxes, edge_bvh);
+    init_bvh(face_boxes, face_bvh);
+}
+
+void BVH::build(
     const Eigen::MatrixXd& vertices_t0,
     const Eigen::MatrixXd& vertices_t1,
     const Eigen::MatrixXi& edges,
     const Eigen::MatrixXi& faces,
     const double inflation_radius)
+{
+    BroadPhase::build(vertices_t0, vertices_t1, edges, faces, inflation_radius);
+    init_bvh(vertex_boxes, vertex_bvh);
+    init_bvh(edge_boxes, edge_bvh);
+    init_bvh(face_boxes, face_bvh);
+}
+
+void BVH::build(
+    const Eigen::MatrixXd& vertices_t0,
+    const Eigen::MatrixXd& vertices_t1,
+    const Eigen::MatrixXi& edges,
+    const Eigen::MatrixXi& faces,
+    const Eigen::VectorXd& inflation_radius)
 {
     BroadPhase::build(vertices_t0, vertices_t1, edges, faces, inflation_radius);
     init_bvh(vertex_boxes, vertex_bvh);

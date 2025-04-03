@@ -146,7 +146,8 @@ void CollisionsBuilder::add_edge_edge_collisions(
         const double distance_sqr =
             edge_edge_distance(ea0, ea1, eb0, eb1, actual_dtype);
 
-        if (!is_active(distance_sqr))
+        double dhat = mesh.get_edge_dhat(eai) + mesh.get_edge_dhat(ebi);
+        if (!is_active(distance_sqr,dhat))
             continue;
 
         const double eps_x = edge_edge_mollifier_threshold(
@@ -179,40 +180,49 @@ void CollisionsBuilder::add_edge_edge_collisions(
         switch (dtype) {
         case EdgeEdgeDistanceType::EA0_EB0:
             add_vertex_vertex_collision(ea0i, eb0i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA0_EB1:
             add_vertex_vertex_collision(ea0i, eb1i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA1_EB0:
             add_vertex_vertex_collision(ea1i, eb0i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA1_EB1:
             add_vertex_vertex_collision(ea1i, eb1i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA_EB0:
             add_edge_vertex_collision(eai, eb0i, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA_EB1:
             add_edge_vertex_collision(eai, eb1i, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA0_EB:
             add_edge_vertex_collision(ebi, ea0i, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA1_EB:
             add_edge_vertex_collision(ebi, ea1i, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::EA_EB:
             ee_collisions.emplace_back(
                 eai, ebi, eps_x, weight, weight_gradient, actual_dtype);
             ee_to_id.emplace(ee_collisions.back(), ee_collisions.size() - 1);
+            ee_collisions.back().dhat = dhat;
             break;
 
         case EdgeEdgeDistanceType::AUTO:
@@ -245,7 +255,8 @@ void CollisionsBuilder::add_face_vertex_collisions(
         const double distance_sqr =
             point_triangle_distance(v, f0, f1, f2, dtype);
 
-        if (!is_active(distance_sqr))
+        double dhat = mesh.get_vertex_dhat(vi) + mesh.get_face_dhat(fi);
+        if (!is_active(distance_sqr,dhat))
             continue;
 
         // ÷ 4 to handle double counting and PT + EE for correct integration
@@ -262,33 +273,40 @@ void CollisionsBuilder::add_face_vertex_collisions(
         switch (dtype) {
         case PointTriangleDistanceType::P_T0:
             add_vertex_vertex_collision(vi, f0i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_T1:
             add_vertex_vertex_collision(vi, f1i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_T2:
             add_vertex_vertex_collision(vi, f2i, weight, weight_gradient);
+            vv_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_E0:
             add_edge_vertex_collision(
                 mesh.faces_to_edges()(fi, 0), vi, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_E1:
             add_edge_vertex_collision(
                 mesh.faces_to_edges()(fi, 1), vi, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_E2:
             add_edge_vertex_collision(
                 mesh.faces_to_edges()(fi, 2), vi, weight, weight_gradient);
+            ev_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::P_T:
             fv_collisions.emplace_back(fi, vi, weight, weight_gradient);
+            fv_collisions.back().dhat = dhat;
             break;
 
         case PointTriangleDistanceType::AUTO:

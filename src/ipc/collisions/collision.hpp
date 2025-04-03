@@ -89,6 +89,9 @@ public:
     /// @brief The minimum separation distance.
     double dmin = 0;
 
+    /// @brief The distance threshold for the barrier potential.
+    double dhat = 1e-6;
+
     /// @brief The term's weight (e.g., collision area)
     double weight = 1;
 

@@ -27,11 +27,41 @@ void BroadPhase::build(
 }
 
 void BroadPhase::build(
+    const Eigen::MatrixXd& vertices,
+    const Eigen::MatrixXi& edges,
+    const Eigen::MatrixXi& faces,
+    const Eigen::VectorXd& inflation_radius)
+{
+    assert(edges.size() == 0 || edges.cols() == 2);
+    assert(faces.size() == 0 || faces.cols() == 3);
+    clear();
+    build_vertex_boxes(vertices, vertex_boxes, inflation_radius);
+    build_edge_boxes(vertex_boxes, edges, edge_boxes);
+    build_face_boxes(vertex_boxes, faces, face_boxes);
+}
+
+void BroadPhase::build(
     const Eigen::MatrixXd& vertices_t0,
     const Eigen::MatrixXd& vertices_t1,
     const Eigen::MatrixXi& edges,
     const Eigen::MatrixXi& faces,
     const double inflation_radius)
+{
+    assert(edges.size() == 0 || edges.cols() == 2);
+    assert(faces.size() == 0 || faces.cols() == 3);
+    clear();
+    build_vertex_boxes(
+        vertices_t0, vertices_t1, vertex_boxes, inflation_radius);
+    build_edge_boxes(vertex_boxes, edges, edge_boxes);
+    build_face_boxes(vertex_boxes, faces, face_boxes);
+}
+
+void BroadPhase::build(
+    const Eigen::MatrixXd& vertices_t0,
+    const Eigen::MatrixXd& vertices_t1,
+    const Eigen::MatrixXi& edges,
+    const Eigen::MatrixXi& faces,
+    const Eigen::VectorXd& inflation_radius)
 {
     assert(edges.size() == 0 || edges.cols() == 2);
     assert(faces.size() == 0 || faces.cols() == 3);
