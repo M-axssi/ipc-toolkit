@@ -177,59 +177,64 @@ void CollisionsBuilder::add_edge_edge_collisions(
                 : Eigen::SparseVector<double>(vertices.size());
         }
 
-        switch (dtype) {
-        case EdgeEdgeDistanceType::EA0_EB0:
-            add_vertex_vertex_collision(ea0i, eb0i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        ee_collisions.emplace_back(
+            eai, ebi, eps_x, weight, weight_gradient, actual_dtype);
+        ee_to_id.emplace(ee_collisions.back(), ee_collisions.size() - 1);
+        ee_collisions.back().dhat = dhat;
 
-        case EdgeEdgeDistanceType::EA0_EB1:
-            add_vertex_vertex_collision(ea0i, eb1i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        // switch (dtype) {
+        // case EdgeEdgeDistanceType::EA0_EB0:
+        //     add_vertex_vertex_collision(ea0i, eb0i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA1_EB0:
-            add_vertex_vertex_collision(ea1i, eb0i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA0_EB1:
+        //     add_vertex_vertex_collision(ea0i, eb1i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA1_EB1:
-            add_vertex_vertex_collision(ea1i, eb1i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA1_EB0:
+        //     add_vertex_vertex_collision(ea1i, eb0i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA_EB0:
-            add_edge_vertex_collision(eai, eb0i, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA1_EB1:
+        //     add_vertex_vertex_collision(ea1i, eb1i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA_EB1:
-            add_edge_vertex_collision(eai, eb1i, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA_EB0:
+        //     add_edge_vertex_collision(eai, eb0i, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA0_EB:
-            add_edge_vertex_collision(ebi, ea0i, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA_EB1:
+        //     add_edge_vertex_collision(eai, eb1i, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA1_EB:
-            add_edge_vertex_collision(ebi, ea1i, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA0_EB:
+        //     add_edge_vertex_collision(ebi, ea0i, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::EA_EB:
-            ee_collisions.emplace_back(
-                eai, ebi, eps_x, weight, weight_gradient, actual_dtype);
-            ee_to_id.emplace(ee_collisions.back(), ee_collisions.size() - 1);
-            ee_collisions.back().dhat = dhat;
-            break;
+        // case EdgeEdgeDistanceType::EA1_EB:
+        //     add_edge_vertex_collision(ebi, ea1i, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case EdgeEdgeDistanceType::AUTO:
-        default:
-            assert(false);
-            break;
-        }
+        // case EdgeEdgeDistanceType::EA_EB:
+        //     ee_collisions.emplace_back(
+        //         eai, ebi, eps_x, weight, weight_gradient, actual_dtype);
+        //     ee_to_id.emplace(ee_collisions.back(), ee_collisions.size() - 1);
+        //     ee_collisions.back().dhat = dhat;
+        //     break;
+
+        // case EdgeEdgeDistanceType::AUTO:
+        // default:
+        //     assert(false);
+        //     break;
+        // }
     }
 }
 
@@ -270,50 +275,53 @@ void CollisionsBuilder::add_face_vertex_collisions(
                 : Eigen::SparseVector<double>(vertices.size());
         }
 
-        switch (dtype) {
-        case PointTriangleDistanceType::P_T0:
-            add_vertex_vertex_collision(vi, f0i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        fv_collisions.emplace_back(fi, vi, weight, weight_gradient);
+        fv_collisions.back().dhat = dhat;
 
-        case PointTriangleDistanceType::P_T1:
-            add_vertex_vertex_collision(vi, f1i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        // switch (dtype) {
+        // case PointTriangleDistanceType::P_T0:
+        //     add_vertex_vertex_collision(vi, f0i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::P_T2:
-            add_vertex_vertex_collision(vi, f2i, weight, weight_gradient);
-            vv_collisions.back().dhat = dhat;
-            break;
+        // case PointTriangleDistanceType::P_T1:
+        //     add_vertex_vertex_collision(vi, f1i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::P_E0:
-            add_edge_vertex_collision(
-                mesh.faces_to_edges()(fi, 0), vi, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case PointTriangleDistanceType::P_T2:
+        //     add_vertex_vertex_collision(vi, f2i, weight, weight_gradient);
+        //     vv_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::P_E1:
-            add_edge_vertex_collision(
-                mesh.faces_to_edges()(fi, 1), vi, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case PointTriangleDistanceType::P_E0:
+        //     add_edge_vertex_collision(
+        //         mesh.faces_to_edges()(fi, 0), vi, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::P_E2:
-            add_edge_vertex_collision(
-                mesh.faces_to_edges()(fi, 2), vi, weight, weight_gradient);
-            ev_collisions.back().dhat = dhat;
-            break;
+        // case PointTriangleDistanceType::P_E1:
+        //     add_edge_vertex_collision(
+        //         mesh.faces_to_edges()(fi, 1), vi, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::P_T:
-            fv_collisions.emplace_back(fi, vi, weight, weight_gradient);
-            fv_collisions.back().dhat = dhat;
-            break;
+        // case PointTriangleDistanceType::P_E2:
+        //     add_edge_vertex_collision(
+        //         mesh.faces_to_edges()(fi, 2), vi, weight, weight_gradient);
+        //     ev_collisions.back().dhat = dhat;
+        //     break;
 
-        case PointTriangleDistanceType::AUTO:
-        default:
-            assert(false);
-            break;
-        }
+        // case PointTriangleDistanceType::P_T:
+        //     fv_collisions.emplace_back(fi, vi, weight, weight_gradient);
+        //     fv_collisions.back().dhat = dhat;
+        //     break;
+
+        // case PointTriangleDistanceType::AUTO:
+        // default:
+        //     assert(false);
+        //     break;
+        // }
     }
 }
 
