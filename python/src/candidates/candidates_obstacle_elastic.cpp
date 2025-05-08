@@ -60,5 +60,22 @@ void define_obstacle_elastic_candidates(py::module_& m)
             py::arg("inflation_radius") = 0,
             py::arg("updateObstacleBVH") = true,
             py::arg("detect_elastic_obstacle_coll") = true,
-            py::arg("detect_elastic_elastic_coll") = true);
+            py::arg("detect_elastic_elastic_coll") = true)
+        .def(
+            "detect_elastic_collisions", &CandidatesObstacleElastic::detect_elastic_collisions,
+            R"ipc_Qu8mg5v7(
+            Detect elastic-obstacle collisions.
+
+            Parameters:
+                vertices: Surface vertex.
+                inflation_radius: Amount to inflate the bounding boxes.
+                detect_elastic_obstacle_coll: Detect collisions between elastic and obstacle.
+                detect_elastic_elastic_coll: Detect collisions between elastic.
+            )ipc_Qu8mg5v7",
+            py::arg("vertices"), 
+            py::arg("inflation_radius"),
+            py::arg("detect_elastic_obstacle_coll") = true,
+            py::arg("detect_elastic_elastic_coll") = true)
+        .def_readonly("m_intersect_elastic_edge_ids",&CandidatesObstacleElastic::m_intersect_elastic_edge_ids)
+        .def_readonly("m_intersect_elastic_face_ids",&CandidatesObstacleElastic::m_intersect_elastic_face_ids);
 }

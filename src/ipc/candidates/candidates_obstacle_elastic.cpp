@@ -8,6 +8,7 @@
 
 #include <igl/remove_unreferenced.h>
 #include <ipc/utils/merge_thread_local.hpp>
+#include <ipc/utils/intersection.hpp>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/enumerable_thread_specific.h>
@@ -225,6 +226,163 @@ void CandidatesObstacleElastic::detect_candidates(
         //    fv_candidates.end(), elastic_obstacle_vf_candidates.begin(),
         //    elastic_obstacle_vf_candidates.end());
     }
+}
+
+bool CandidatesObstacleElastic::detect_elastic_collisions(
+    const Eigen::MatrixXd& vertices,
+    double inflation_radius,
+    bool detect_elastic_obstacle_coll, bool detect_elastic_elastic_coll)
+{
+    m_intersect_elastic_edge_ids.clear();
+    m_intersect_elastic_face_ids.clear();
+
+    const Eigen::MatrixXd elastic_vertices =
+        m_mesh.extract_elastic_vertices(vertices);
+
+    // Construct bvh for elastic objects
+    std::shared_ptr<BVH>  temp_broad_phase_elastic = std::make_shared<BVH>();
+    temp_broad_phase_elastic->build(
+        elastic_vertices, m_mesh.elastic_edges(), m_mesh.elastic_faces(),
+        inflation_radius);
+
+    // Construct bvh for obstacle objects
+    const Eigen::MatrixXd obstacle_vertices =
+        m_mesh.extract_obstacle_vertices(vertices);
+
+    std::shared_ptr<BVH>  temp_broad_phase_obstacle = std::make_shared<BVH>();
+    temp_broad_phase_obstacle->build(
+        obstacle_vertices, m_mesh.obstacle_edges(), m_mesh.obstacle_faces(),
+        inflation_radius);
+
+    std::vector<EdgeFaceCandidate> ef_candidates;
+
+    // Detect collision candidates between elastic objects
+    if (detect_elastic_elastic_coll) {
+        std::vector<EdgeFaceCandidate> elastic_ef_candidates;
+        temp_broad_phase_elastic->detect_edge_face_candidates(elastic_ef_candidates);
+
+        tbb::enumerable_thread_specific<std::vector<EdgeFaceCandidate>>
+            ef_storage;
+
+        tbb::parallel_for(
+            tbb::blocked_range<size_t>(size_t(0), elastic_ef_candidates.size()),
+            [&](const tbb::blocked_range<size_t>& r) {
+                auto& local_candidates = ef_storage.local();
+                for (size_t i = r.begin(); i < r.end(); i++) {
+                    long& e_id = elastic_ef_candidates[i].edge_id;
+                    long& f_id = elastic_ef_candidates[i].face_id;
+                    e_id = m_mesh.elastic_edge_id_to_full_edge_id(e_id);
+                    f_id = m_mesh.elastic_face_id_to_full_face_id(f_id);
+                    if (!(m_mesh.is_edge_bc(e_id) && m_mesh.is_face_bc(f_id))) {
+                        local_candidates.push_back(elastic_ef_candidates[i]);
+                    }
+                }
+            });
+
+        merge_thread_local_vectors(ef_storage, ef_candidates);
+
+        for (const auto& [e_id, f_id] : ef_candidates) {
+            if (is_edge_intersecting_triangle(
+                    vertices.row(m_mesh.edges()(e_id, 0)),
+                    vertices.row(m_mesh.edges()(e_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 0)),
+                    vertices.row(m_mesh.faces()(f_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 2)))) {
+                m_intersect_elastic_edge_ids.push_back(
+                    m_mesh.elastic_full_edge_id_to_edge_id(e_id));
+                m_intersect_elastic_face_ids.push_back(
+                    m_mesh.elastic_full_face_id_to_face_id(f_id));
+            }
+        }
+    }
+
+    // Detect collision candidates between elastic objects and obstacles
+    if (detect_elastic_obstacle_coll) {
+        const std::vector<AABB>& elastic_face_boxes =
+            temp_broad_phase_elastic->get_face_boxes();
+        const std::vector<AABB>& obstacle_face_boxes =
+            temp_broad_phase_obstacle->get_face_boxes();
+
+        std::vector<EdgeFaceCandidate> elastic_obstacle_ef_candidates;
+        std::vector<EdgeFaceCandidate> elastic_obstacle_fe_candidates;
+
+        temp_broad_phase_elastic->detect_input_edge_face_candidates(
+            elastic_obstacle_ef_candidates, obstacle_face_boxes);
+        temp_broad_phase_obstacle->detect_input_edge_face_candidates(
+            elastic_obstacle_fe_candidates, elastic_face_boxes);
+
+        tbb::enumerable_thread_specific<std::vector<EdgeFaceCandidate>>
+            ef_storage;
+        tbb::enumerable_thread_specific<std::vector<EdgeFaceCandidate>>
+            fe_storage;
+
+        tbb::parallel_for(
+            tbb::blocked_range<size_t>(
+                size_t(0), elastic_obstacle_ef_candidates.size()),
+            [&](const tbb::blocked_range<size_t>& r) {
+                auto& local_candidates = ef_storage.local();
+                for (size_t i = r.begin(); i < r.end(); i++) {
+                    long& e_id = elastic_obstacle_ef_candidates[i].edge_id;
+                    long& f_id = elastic_obstacle_ef_candidates[i].face_id;
+                    e_id = m_mesh.elastic_edge_id_to_full_edge_id(e_id);
+                    f_id = m_mesh.obstacle_face_id_to_full_face_id(f_id);
+                    if (!(m_mesh.is_edge_bc(e_id) && m_mesh.is_face_bc(f_id))) {
+                        local_candidates.push_back(
+                            elastic_obstacle_ef_candidates[i]);
+                    }
+                }
+            });
+
+        tbb::parallel_for(
+            tbb::blocked_range<size_t>(
+                size_t(0), elastic_obstacle_fe_candidates.size()),
+            [&](const tbb::blocked_range<size_t>& r) {
+                auto& local_candidates = fe_storage.local();
+                for (size_t i = r.begin(); i < r.end(); i++) {
+                    long& e_id = elastic_obstacle_fe_candidates[i].edge_id;
+                    long& f_id = elastic_obstacle_fe_candidates[i].face_id;
+                    e_id = m_mesh.obstacle_edge_id_to_full_edge_id(e_id);
+                    f_id = m_mesh.elastic_face_id_to_full_face_id(f_id);
+                    if (!(m_mesh.is_edge_bc(e_id) && m_mesh.is_face_bc(f_id))) {
+                        local_candidates.push_back(
+                            elastic_obstacle_fe_candidates[i]);
+                    }
+                }
+            });
+
+        ef_candidates.clear();
+        merge_thread_local_vectors(ef_storage, ef_candidates);
+        for (const auto& [e_id, f_id] : ef_candidates) {
+            if (is_edge_intersecting_triangle(
+                    vertices.row(m_mesh.edges()(e_id, 0)),
+                    vertices.row(m_mesh.edges()(e_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 0)),
+                    vertices.row(m_mesh.faces()(f_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 2)))) {
+                m_intersect_elastic_edge_ids.push_back(
+                    m_mesh.elastic_full_edge_id_to_edge_id(e_id));
+            }
+        }
+
+        ef_candidates.clear();
+        merge_thread_local_vectors(fe_storage, ef_candidates);
+        for (const auto& [e_id, f_id] : ef_candidates) {
+            if (is_edge_intersecting_triangle(
+                    vertices.row(m_mesh.edges()(e_id, 0)),
+                    vertices.row(m_mesh.edges()(e_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 0)),
+                    vertices.row(m_mesh.faces()(f_id, 1)),
+                    vertices.row(m_mesh.faces()(f_id, 2)))) {
+                m_intersect_elastic_face_ids.push_back(
+                    m_mesh.elastic_full_face_id_to_face_id(f_id));
+            }
+        }
+    }
+
+    if (m_intersect_elastic_edge_ids.size() > 0
+        || m_intersect_elastic_face_ids.size() > 0)
+        return true;
+    return false;
 }
 
 } // namespace ipc

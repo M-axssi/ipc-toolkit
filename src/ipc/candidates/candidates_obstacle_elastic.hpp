@@ -60,6 +60,17 @@ public:
         bool detect_elastic_obstacle_coll = true,
         bool detect_elastic_elastic_coll = true);
 
+    /// @param detect_elastic_obstacle_coll detect collisions between elastic and obstacle.
+    /// @param detect_elastic_elastic_coll detect collisions between elastic.
+    bool detect_elastic_collisions(
+        const Eigen::MatrixXd& vertices,
+        double inflation_radius,
+        bool detect_elastic_obstacle_coll = true,
+        bool detect_elastic_elastic_coll = true);
+
+    std::vector<int> m_intersect_elastic_edge_ids;
+    std::vector<int> m_intersect_elastic_face_ids;
+
 protected:
     const CollisionObstacleElasticMesh& m_mesh;
     int m_dim;

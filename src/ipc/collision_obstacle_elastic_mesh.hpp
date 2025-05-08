@@ -86,6 +86,16 @@ public:
         return face_id;
     }
 
+    long elastic_full_edge_id_to_edge_id(long edge_id) const
+    {
+        return edge_id - m_obstacle_enum;
+    }
+
+    long elastic_full_face_id_to_face_id(long face_id) const
+    {
+        return face_id - m_obstacle_fnum;
+    }
+
     bool is_vertex_bc(long vertex_id) const { 
         return m_is_vertex_bc[vertex_id];
     }
